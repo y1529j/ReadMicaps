@@ -15,10 +15,19 @@ import pandas as pd
 
 # Creating the class
 class MicapsOp:
-    
-    
     # Initialize the class
     def __init__(self,forder,file,ofile):
+        self.factor=None
+        self.end_lat=None
+        self.end_lon=None
+        self.start_lat=None
+        self.start_lon=None
+        self.xsize=None
+        self.ysize=None
+        self.file_time=None
+        self.level=None
+        self.ofile=None
+        self.file=None
         self.forder =forder
         self.file=file
         self.ofile=ofile
@@ -30,7 +39,20 @@ class MicapsOp:
         self.raw=self.raw.split()
         return self.raw
     
-    def DrawContour(self):
+    def PreDraw(self,e):
+        self.end_lat=e.end_lat
+        self.end_lon=e.end_lon
+        self.start_lat=e.start_lat
+        self.start_lon=e.start_lon
+        self.xsize=e.xsize
+        self.ysize=e.ysize
+        self.file_time=e.file_time
+        self.level=e.level
+        self.ofile=e.ofile
+        self.file=e.file
+        self.factor=e.factor
+        
+    def DrawContour(self,r):
         fig,ax = plt.subplots(figsize=(14,9))
     
         m = Basemap(projection='cyl',
@@ -43,15 +65,42 @@ class MicapsOp:
         lat=np.linspace(self.end_lat,self.start_lat,self.ysize)[::-1]               
         lons, lats = np.meshgrid(sn.zoom(lon, self.factor), sn.zoom(lat, self.factor))
         x, y = m(lons, lats)
+<<<<<<< Updated upstream
         c1=m.contour(x,y,sn.zoom(self.data, self.factor),
                  levels=np.arange(self.start_level,self.end_level+self.lineint,self.lineint),colors='r',zorder=1)
         ax.clabel(c1, fmt='%d', inline=True, fontsize=12, inline_spacing=8)
+=======
+        c1=m.contour(x,y,sn.zoom(self.data, self.factor),r,colors='r',zorder=1)
+        ax.clabel(c1, fmt='%d', inline= True, fontsize=12, inline_spacing=8)
+>>>>>>> Stashed changes
             
         m.readshapefile('D:\\Chrome download\\国界\\国界\\country1', 'province',color='k',linewidth=0.6,zorder=0)
             
         plt.title('%s      Level:%d'%(self.file_time.strftime('%Y-%m-%d %H:%M'),self.level),size=14, loc='left')
         plt.savefig(self.ofile+self.file+'.png',dpi=300,bbox_inches='tight')
+        plt.xlabel('2020-11-23')
+        ax.spines['right'].set_color('none')
+    def DrawContourf(self,r):
+        
+        fig,ax = plt.subplots(figsize=(14,9))
     
+        m = Basemap(projection='cyl',
+                llcrnrlat=self.end_lat, urcrnrlat=self.start_lat,
+                llcrnrlon=self.start_lon, urcrnrlon=self.end_lon,
+                resolution='l')
+        m.drawcoastlines(linewidth=0.8, color='black')
+    
+        lon=np.linspace(self.start_lon,self.end_lon,self.xsize)
+        lat=np.linspace(self.end_lat,self.start_lat,self.ysize)[::-1]               
+        lons, lats = np.meshgrid(sn.zoom(lon, self.factor), sn.zoom(lat, self.factor))
+        x, y = m(lons, lats)
+        c1=m.contourf(x,y,sn.zoom(self.data, self.factor),r,zorder=1,cmap=cm.jet)
+        ax.clabel(c1, fmt='%d', inline= True, fontsize=12, inline_spacing=8)
+            
+        m.readshapefile('D:\\shp\\国界\\国界\\country1', 'province',color='k',linewidth=0.6,zorder=0)
+            
+        plt.title('%s      Level:%d'%(self.file_time.strftime('%Y-%m-%d %H:%M'),self.level),size=14, loc='left')
+        plt.savefig(self.ofile+self.file+'.png',dpi=300,bbox_inches='tight')        
 class MiR4(MicapsOp):
     title =None
     def __init__(self,forder,file,ofile,kind):
@@ -85,11 +134,15 @@ class MiR4(MicapsOp):
             MiR4.Culpt1(self)
         elif self.kind=="pt 850":
             MiR4.Culpt2(self)
+<<<<<<< Updated upstream
         elif self.kind=="eqpt 500":
             MiR4.Culpt3(self)
         elif self.kind=="eqpt 850":
             MiR4.Culpt4(self)
                   
+=======
+        
+>>>>>>> Stashed changes
     def Cultd(self):
         self.data=self.predata
     
@@ -98,6 +151,7 @@ class MiR4(MicapsOp):
     
     def Culpt2(self):
         self.data=(self.predata)*(1000/850)**0.286
+<<<<<<< Updated upstream
     def Culpt3(self):
         '''
         self.l=597.3-0.566*self.predata
@@ -110,11 +164,14 @@ class MiR4(MicapsOp):
         self.data=(self.predata)*(1000/850)**0.286
         
         
+=======
+>>>>>>> Stashed changes
     
     def OutPutContour(self):
         MiR4.PreData(self)
         MiR4.CulVa(self)
-        MicapsOp.DrawContour(self)
+        r=np.arange(self.start_level,self.end_level+self.lineint,self.lineint)
+        MicapsOp.DrawContour(self,r)
         
 class MiR11(MicapsOp):
     def __init__(self,forder,file,ofile):
@@ -141,6 +198,10 @@ class MiR11(MicapsOp):
         MiR11.PreData(self)
        '''
 class Eqpt(MicapsOp):
+<<<<<<< Updated upstream
+=======
+    
+>>>>>>> Stashed changes
     def __init__(self,file,ofile,p,t,td):
         self.file=file
         self.ofile=ofile
@@ -154,6 +215,7 @@ class Eqpt(MicapsOp):
         
         Eqpt2=MiR4(self.td,self.file,self.ofile,'td') 
         Eqpt2.PreData()
+<<<<<<< Updated upstream
         nameless=pd.DataFrame(Eqpt1.predata/(Eqpt1.predata-(Eqpt2.predata)))
         nameless.apply(np.log)
         self.l=597.3-0.566*Eqpt1.predata
@@ -190,6 +252,93 @@ class Vert(MicapsOp):
     
     def __init__(self,forder,file,ofile):
         MicapsOp.__init__(self,forder,file,ofile)
+=======
+        self.tdda=Eqpt2.predata
+        
+        self.nameless=(273.16+self.tda)/(273.16+self.tda-(self.tdda))
+        for i in range(len(self.nameless)):
+            for j in range(len(self.nameless[i])):               
+                self.nameless[i,j]=math.log(self.nameless[i,j],2.71828182846)
+        self.l=597.3-0.566*self.tda
+        self.tl=(0.622*(self.l)*(273.16+Eqpt1.predata-(Eqpt2.predata)))/(0.622*(self.l)+(0.24*(273.16+Eqpt1.predata-(Eqpt2.predata)))*self.nameless)        
+        self.nameless1=17.2693882*(Eqpt1.predata-(Eqpt2.predata))/(273.16+(Eqpt1.predata-(Eqpt2.predata)-35.86))
+        for i in range(len(self.nameless1)):
+            for j in range(len(self.nameless1[i])):
+                self.nameless1[i,j]=math.exp(self.nameless1[i,j])
+        self.e=6.1078*self.nameless1
+        self.q=0.622*self.e/(self.p-0.378*self.e)
+        self.nameless2=self.l*self.q/(0.24*self.tl)
+        for i in range(len(self.nameless2)):
+            for j in range(len(self.nameless2[i])):
+                self.nameless2[i,j]=math.exp(self.nameless2[i,j])
+        self.data=(273.16+Eqpt1.predata)*((1000/(self.p-self.e))**0.286)
+        self.data=self.data*self.nameless2
+        MicapsOp.PreDraw(self, Eqpt1)
+        
+    def OutPutContour(self):
+        r=range(-1000,1000,50)
+        Eqpt.Culw(self)
+        MicapsOp.DrawContour(self, r)
+        
+class Vert(MicapsOp):
+    r=range(-10000,10000,1)
+    def __init__(self,file,ofile,p,u):
+        self.file=file
+        self.ofile=ofile
+        self.p=p
+        self.u=u
+                
+    def Sped(self):
+        Vert=MiR11(self.u,self.file,self.ofile) 
+        Vert.PreData()
+        #涡度
+        self.uda=units('m/s') *Vert.datau
+        #self.uda=Vert.datau
+        self.vda=units('m/s') *Vert.datav
+        lon=np.linspace(Vert.start_lon,Vert.end_lon,Vert.xsize)
+        lat=np.linspace(Vert.end_lat,Vert.start_lat,Vert.ysize)[::-1]
+        dx, dy = mpcalc.lat_lon_grid_deltas(lon, lat)
+        self.vort = mpcalc.vorticity(self.uda, self.vda,dx,dy)
+        self.dive = mpcalc.divergence(self.uda, self.vda,dx,dy)
+        self.data=self.vort.magnitude*1e5
+        self.OutPutContour(Vert,self.r)
+        '''
+        涡度平流
+        dx, dy = mpcalc.lat_lon_grid_deltas(lon, lat)
+
+        f = mpcalc.coriolis_parameter(np.deg2rad(lat)).to(units('1/sec'))
+
+        avor = mpcalc.vorticity(self.uda, self.vda, dx, dy, dim_order='yx')
+
+        self.data = ndimage.gaussian_filter(avor, sigma=3, order=0) * units('1/s')
+        '''
+        #散度
+        
+        #self.OutPutContour(Vert,self.r)
+        
+    def OutPutContour(self,e,r):
+        '''
+    
+        lon=np.linspace(e.start_lon,e.end_lon,e.xsize)
+        lat=np.linspace(e.end_lat,e.start_lat,e.ysize)[::-1]               
+        lons, lats = np.meshgrid(sn.zoom(lon, e.factor), sn.zoom(lat, e.factor))
+        x, y = m(lons, lats)
+        c1=m.contour(x,y,sn.zoom(self.data, e.factor),r,colors='r',zorder=1)
+        ax.clabel(c1, fmt='%d', inline= True, fontsize=12, inline_spacing=8)
+            
+        m.readshapefile('D:\\shp\\国界\\国界\\country1', 'province',color='k',linewidth=0.6,zorder=0)
+            
+        plt.title('%s      Level:%d'%(e.file_time.strftime('%Y-%m-%d %H:%M'),e.level),size=14, loc='left')
+        plt.savefig(self.ofile+self.file+'.png',dpi=300,bbox_inches='tight')
+        '''
+        
+        '''
+        #self.uda=self.uda.tolist()
+        self.uu=np.diff(self.uda)
+        self.vv=np.diff(self.vda,axis=0)
+        self.div=self.uu[-1:,:]/2.5+self.vv[:,:-1]
+        '''
+>>>>>>> Stashed changes
         
     def Culw(self):
         Verts1=MiR4(forder,t,ofile,'t') 
@@ -211,9 +360,52 @@ class Vert(MicapsOp):
                 
                 PT=(Vert1.CulVa[i:j]-Vert1a.CulVa[i:j])/86400
                 VT=(Vert2.datau[i,j]*(Vert1.CulVa[i+1:j]-Vert1.CulVa[i:j])/Vert1.xint)+(Vert2.datav[i,j]*(Vert1.CulVa[i:j+1]-Vert1.CulVa[i:j])/Vert1.yint)
+<<<<<<< Updated upstream
                 '''
             
             
+=======
+        
+
+        R = CoordSys3D('R')
+        v1 = R.x*R.y*R.z * (R.i+R.j+R.k)
+        divergence(v1)
+        v2 = 2*R.y*R.z*R.j
+        divergence(v2)
+        '''
+class Tadv(MicapsOp):
+    
+    def __init__(self,file,ofile,p,u,t):
+        self.file=file
+        self.ofile=ofile
+        self.p=p
+        self.u=u
+        self.t=t
+        
+    def Adve(self):
+        Tadv1=MiR11(self.u,self.file,self.ofile) 
+        Tadv1.PreData()
+        Tadv2=MiR4(self.t,self.file,self.ofile,'t') 
+        Tadv2.PreData()
+        self.uda=Tadv1.datau
+        self.vda=Tadv1.datav
+        self.t  =Tadv2.predata
+        
+        lon=np.linspace(Tadv2.start_lon,Tadv2.end_lon,Tadv2.xsize)
+        lat=np.linspace(Tadv2.end_lat,Tadv2.start_lat,Tadv2.ysize)[::-1]
+        dx, dy = mpcalc.lat_lon_grid_deltas(lon, lat)
+        self.adv = mpcalc.advection(self.t,[self.uda,self.vda],
+                       (dx, dy), dim_order='yx')
+        #print(self.adv)
+        self.data=self.adv*1e6
+        print(self.data)
+        MicapsOp.PreDraw(self, Tadv2)
+
+    def OutPutContourf(self):
+        r=range(-100,100,1)
+        Tadv.Adve(self)
+        MicapsOp.DrawContourf(self, r)     
+>>>>>>> Stashed changes
             
             
         
